@@ -1,4 +1,4 @@
-import { Flex, Text } from "@chakra-ui/react"
+import { Button, Flex, Text } from "@chakra-ui/react"
 import YearSlider from "./yearSlider";
 import TagBox from "./tagBox";
 import VisualizationControls from "./visualizationControls";
@@ -48,6 +48,13 @@ const SideBar = () => {
                 </Text>
 
                 <VisualizationControls />
+
+                {/* Submission */}
+                <Flex w='full' justify='center' mt={'12'} mb={'24'}>
+                    <Button variant='subtle'>
+                        Submit
+                    </Button>
+                </Flex>
                 
             </Flex>
         </Flex>

@@ -1,5 +1,6 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import SideBar from "./components/sidebar/sidebar";
+import LineGraph from "./components/charts/lineChart";
 
 function App() {
   return (
@@ -11,6 +12,10 @@ function App() {
       color='black'
     >
       <SideBar />
+      <Flex w='2/3' justify='center' align='center' direction='column'>
+        <Text color='black' fontWeight='bold' fontSize='xl'> Example Graph </Text>
+        <LineGraph />
+      </Flex>
     </Flex>
   );
 }

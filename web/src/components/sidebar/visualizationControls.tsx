@@ -47,7 +47,9 @@ const VisualizationControls = () => {
     return (
         <Flex direction='column' gap={4}>
             <Flex direction='column'>
-                <Text mb={2} fontWeight='semibold'>Chart Type</Text>
+                <Text mb={2} fontWeight='semibold'>
+                    Chart Type <Text as='span' color='red.500'>*</Text>
+                </Text>
                 <Select.Root collection={chartTypes}>
                     <Select.Trigger>
                         <Select.ValueText placeholder="Select chart type" />
@@ -63,7 +65,9 @@ const VisualizationControls = () => {
             </Flex>
 
             <Flex direction='column'>
-                <Text mb={2} fontWeight='semibold'>X-Axis</Text>
+                <Text mb={2} fontWeight='semibold'>
+                    X-Axis <Text as='span' color='red.500'>*</Text>
+                </Text>
                 <Select.Root collection={xAxisOptions}>
                     <Select.Trigger>
                         <Select.ValueText placeholder="Select X-axis" />
@@ -79,7 +83,9 @@ const VisualizationControls = () => {
             </Flex>
 
             <Flex direction='column'>
-                <Text mb={2} fontWeight='semibold'>Y-Axis</Text>
+                <Text mb={2} fontWeight='semibold'>
+                    Y-Axis <Text as='span' color='red.500'>*</Text>
+                </Text>
                 <Select.Root collection={yAxisOptions}>
                     <Select.Trigger>
                         <Select.ValueText placeholder="Select Y-axis" />
@@ -95,7 +101,7 @@ const VisualizationControls = () => {
             </Flex>
 
             <Flex direction='column'>
-                <Text mb={2} fontWeight='semibold'>Group By (Optional)</Text>
+                <Text mb={2} fontWeight='semibold'> Group By </Text>
                 <Select.Root collection={groupByOptions}>
                     <Select.Trigger>
                         <Select.ValueText placeholder="None" />
