@@ -58,7 +58,6 @@ CREATE TABLE IF NOT EXISTS Countries (
 );
 
 
-DROP TABLE Gender;
 CREATE TABLE IF NOT EXISTS Gender (
     Name            VARCHAR(100) PRIMARY KEY,
     CountryCode     CHAR(2),

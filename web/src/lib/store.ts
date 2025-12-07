@@ -1,4 +1,4 @@
-import type { ChartType, GroupField, XField, YField } from "@/api/types";
+import type { ChartData, ChartType, GroupField, XField, YField } from "@/api/types";
 import { atom } from "nanostores";
 
 export const $chartType = atom<ChartType | null>(null);
@@ -6,7 +6,12 @@ export function setChartType (type: ChartType) {
     $chartType.set(type);
 }
 
-export const $chartData = atom<any>();
+export const $chartData = atom<ChartData>({
+    data: [],
+    xLabel: "",
+    yLabel: "",
+    groupLabel: ""
+});
 export function setChartData (data: any) {
     $chartData.set(data);
 }

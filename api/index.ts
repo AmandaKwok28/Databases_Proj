@@ -122,9 +122,14 @@ app.post("/visualize", async (req, res) => {
   const { x, y, groupBy } = req.body;
 
   try {
-    const query = buildVisualizationQuery({ x, y, groupBy });
+    const { query, xLabel, yLabel, groupLabel } = buildVisualizationQuery({ x, y, groupBy });
     const result = await pool.query(query);
-    res.json({ data: result.rows });
+    res.json({ 
+      data: result.rows, 
+      xLabel,
+      yLabel,
+      groupLabel
+    });
   } catch (error) {
     console.error("Visualization error:", error);
     res.status(500).json({ error: "Invalid visualization request" });

@@ -19,8 +19,13 @@ export const fetchData = async (
   if (!response.ok) {
     throw new Error(`API request failed! with status: ${response.status}`);
   }
-  const { data } = await response.json();
-  return data;
+  const { data, xLabel, yLabel, groupLabel } = await response.json();
+  return {
+    data,
+    xLabel,
+    yLabel,
+    groupLabel
+  };
 };
 
 

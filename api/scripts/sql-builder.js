@@ -5,7 +5,6 @@ const X_FIELDS = {
   journal: `A.ISSN`,
   country: `COALESCE(C.Name, '?')`,
   institution: `I.Name`,
-  category: `J.Category`,
   gender: `COALESCE(G.GenderLabel, '?')`,
   ethnicity: `COALESCE(R.RaceLabel, '?')`,
 };
@@ -14,7 +13,6 @@ const Y_FIELDS = {
   publication_count: `COUNT(DISTINCT A.Title)`,
   citation_count: `SUM(A.Is_Referenced_By_Count)`,
   author_count: `COUNT(DISTINCT A.Author)`,
-  percentage: `COUNT(*)`,
   impact_factor: `AVG(J.ImpactFactor)`
 };
 
@@ -25,6 +23,34 @@ const GROUP_FIELDS = {
   journal: `A.ISSN`,
   ethnicity: `COALESCE(R.RaceLabel, '?')`
 };
+
+
+export const LABELS = {
+  x: {
+    year: "Publication Year",
+    journal: "Journal",
+    country: "Country",
+    institution: "Institution",
+    category: "Journal Category",
+    gender: "Gender",
+    ethnicity: "Ethnicity",
+  },
+  y: {
+    publication_count: "Number of Publications",
+    citation_count: "Total Citations",
+    author_count: "Unique Authors",
+    percentage: "Percentage of Publications",
+    impact_factor: "Average Impact Factor",
+  },
+  group: {
+    none: null,
+    gender: "Gender",
+    country: "Country",
+    journal: "Journal",
+    ethnicity: "Ethnicity",
+  }
+};
+
 
 
 // function to visualize statistics on articles in the database
@@ -40,7 +66,7 @@ export function buildVisualizationQuery({ x, y, groupBy = "none" }) {
   const groupSelect = groupField ? `${groupField} AS group_value,` : "";
   const groupByClause = groupField ? `, ${groupField}` : "";
 
-  return `
+  const query = `
     SELECT 
       ${xField} AS x,
       ${groupSelect}
@@ -61,4 +87,11 @@ export function buildVisualizationQuery({ x, y, groupBy = "none" }) {
     GROUP BY x${groupByClause}
     ORDER BY x;
   `;
+
+  return ({
+    query,
+    xLabel: LABELS.x[x],
+    yLabel: LABELS.y[y],
+    groupLabel: LABELS.group[groupBy],
+  })
 }

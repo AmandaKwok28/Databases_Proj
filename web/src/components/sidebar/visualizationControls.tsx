@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
 import { Flex, Text } from "@chakra-ui/react";
 import { createListCollection, Select } from "@chakra-ui/react";
-import { fetchData } from "@/api/api";
 import type { 
     ChartType, 
     XField,
     YField,
     GroupField
 } from "@/api/types";
-import { setChartData, setChartType, setGroupBy, setXAxis, setYAxis } from "@/lib/store";
+import { setChartType, setGroupBy, setXAxis, setYAxis } from "@/lib/store";
 
 
 
@@ -21,7 +19,6 @@ const VisualizationControls = () => {
       { label: "Line Chart", value: "line" },
       { label: "Scatter Plot", value: "scatter" },
       { label: "Histogram", value: "histogram" },
-      { label: "Pie Chart", value: "pie" },
     ] as { label: string; value: ChartType }[],
   });
 
@@ -31,7 +28,6 @@ const VisualizationControls = () => {
       { label: "Journal", value: "journal" },
       { label: "Country", value: "country" },
       { label: "Institution", value: "institution" },
-      { label: "Category", value: "category" },
       { label: "Gender", value: "gender" },
       { label: "Ethnicity", value: "ethnicity" },
     ] as { label: string; value: XField }[],
@@ -42,7 +38,6 @@ const VisualizationControls = () => {
       { label: "Publication Count", value: "publication_count" },
       { label: "Citation Count", value: "citation_count" },
       { label: "Author Count", value: "author_count" },
-      { label: "Percentage", value: "percentage" },
       { label: "Impact Factor", value: "impact_factor" },
     ] as { label: string; value: YField }[],
   });
@@ -67,7 +62,10 @@ const VisualizationControls = () => {
         </Text>
         <Select.Root
           collection={chartTypes}
-          onValueChange={(val) => setChartType(val.value as unknown as ChartType)}
+          onValueChange={(val) => {
+            if (!val) return;
+            setChartType(val.value as unknown as ChartType)
+          }}
         >
           <Select.Trigger>
             <Select.ValueText placeholder="Select chart type" />
@@ -89,7 +87,10 @@ const VisualizationControls = () => {
         </Text>
         <Select.Root
           collection={xAxisOptions}
-          onValueChange={(val) => setXAxis(val.value as unknown as XField)}
+          onValueChange={(val) => {
+            if (!val) return;
+            setXAxis(val.value as unknown as XField)
+          }}
         >
           <Select.Trigger>
             <Select.ValueText placeholder="Select X-axis" />

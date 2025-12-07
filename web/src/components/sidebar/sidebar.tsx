@@ -6,6 +6,7 @@ import Journals from "./journals";
 import { useStore } from "@nanostores/react";
 import { $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
 import { fetchData } from "@/api/api";
+import type { ChartData } from "@/api/types";
 
 
 const SideBar = () => {
@@ -20,8 +21,13 @@ const SideBar = () => {
         return;
         }
 
-        const data = await fetchData(x, y, groupBy ?? "none");
-        setChartData(data);
+        const res: ChartData = await fetchData(x, y, groupBy ?? "none");
+        setChartData({
+            data: res.data,
+            xLabel: res.xLabel,
+            yLabel: res.yLabel,
+            groupLabel: res.groupLabel
+        });
     };
     
     return (
