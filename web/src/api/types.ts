@@ -15,14 +15,11 @@ export type XField =
 export type YField =
   | "publication_count"
   | "citation_count"
-  | "author_count"
-  | "impact_factor";
+  | "author_count";
 
 export type GroupField =
   | "none"
   | "gender"
-  | "country"
-  | "journal"
   | "ethnicity";
   
 export type ChartData = {
@@ -31,6 +28,11 @@ export type ChartData = {
   yLabel: string;
   groupLabel: string | null;
 }
+
+export type ChartPlot = ChartData & {
+  chartType: ChartType;
+};
+
 
 
 export type dataObj = {

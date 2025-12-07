@@ -7,6 +7,7 @@ import type {
     GroupField
 } from "@/api/types";
 import { setChartType, setGroupBy, setXAxis, setYAxis } from "@/lib/store";
+import { toaster } from "../ui/toaster";
 
 
 
@@ -17,8 +18,6 @@ const VisualizationControls = () => {
     items: [
       { label: "Bar Chart", value: "bar" },
       { label: "Line Chart", value: "line" },
-      { label: "Scatter Plot", value: "scatter" },
-      { label: "Histogram", value: "histogram" },
     ] as { label: string; value: ChartType }[],
   });
 
@@ -37,8 +36,7 @@ const VisualizationControls = () => {
     items: [
       { label: "Publication Count", value: "publication_count" },
       { label: "Citation Count", value: "citation_count" },
-      { label: "Author Count", value: "author_count" },
-      { label: "Impact Factor", value: "impact_factor" },
+      { label: "Author Count", value: "author_count" }
     ] as { label: string; value: YField }[],
   });
 
@@ -46,8 +44,6 @@ const VisualizationControls = () => {
     items: [
       { label: "None", value: "none" },
       { label: "Gender", value: "gender" },
-      { label: "Country", value: "country" },
-      { label: "Journal", value: "journal" },
       { label: "Ethnicity", value: "ethnicity" },
     ] as { label: string; value: GroupField }[],
   });
@@ -62,11 +58,26 @@ const VisualizationControls = () => {
         </Text>
         <Select.Root
           collection={chartTypes}
-          onValueChange={(val) => {
-            if (!val) return;
-            setChartType(val.value as unknown as ChartType)
+          onValueChange={({ value }) => {
+            const selected = value[0];     
+            if (selected) {
+              setChartType(selected as ChartType);
+            };
+
+            if (selected === "line") {
+              toaster.warning({
+                title: "Line Chart Warning",
+                description: "This option is only meaningful for X-Axis = Year",
+                action: {
+                  label: "Undo",
+                  onClick: () => console.log("Undo"),
+                },
+              })
+            }
+
           }}
-        >
+
+>
           <Select.Trigger>
             <Select.ValueText placeholder="Select chart type" />
           </Select.Trigger>

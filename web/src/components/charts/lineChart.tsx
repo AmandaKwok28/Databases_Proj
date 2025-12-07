@@ -1,10 +1,11 @@
 import { useStore } from '@nanostores/react';
 import { Flex } from "@chakra-ui/react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { $chartData } from '@/lib/store';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
+import { $chartData, $chartType } from '@/lib/store';
 
 const BarGraph = () => {
   const { data, xLabel, yLabel } = useStore($chartData);
+  const chartType = useStore($chartType);
 
   if (!data || data.length === 0) {
     return <Flex p={10}>No data available</Flex>;
@@ -35,10 +36,15 @@ const BarGraph = () => {
   
   const colors: string[] = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#a4de6c'];
 
+  console.log(chartType)
+  const ChartComponent = chartType === "line" ? LineChart : BarChart;
+  const SeriesComponent = chartType === "line" ? Line : Bar;
+
+
   return (
     <Flex w="full" pr={10}>
       <ResponsiveContainer width="100%" height={600}>
-        <BarChart
+        <ChartComponent
           data={chartData}
           margin={{ top: 20, right: 20, left: 20, bottom: 40 }}
         >
@@ -70,22 +76,30 @@ const BarGraph = () => {
           {/* If grouped data exists, create a Bar for each group */}
           {hasGroups ? (
             groups.map((group, index) => (
-              <Bar 
+              <SeriesComponent
                 key={group}
                 dataKey={group}
-                fill={colors[index % colors.length]}
                 name={group}
+
+                // apply correct props depending on chart type
+                {...(chartType === "line"
+                  ? { type: "monotone", stroke: colors[index % colors.length] }
+                  : { fill: colors[index % colors.length] }
+                )}
               />
             ))
           ) : (
-            // Single bar for non-grouped data
-            <Bar 
-              dataKey="y" 
-              fill="#8884d8" 
+            <SeriesComponent
+              dataKey="y"
               name={yLabel || "Value"}
+
+              {...(chartType === "line"
+                ? { type: "monotone", stroke: "#8884d8" }
+                : { fill: "#8884d8" }
+              )}
             />
           )}
-        </BarChart>
+        </ChartComponent>
       </ResponsiveContainer>
     </Flex>
   );

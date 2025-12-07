@@ -4,7 +4,7 @@ import TagBox from "./tagBox";
 import VisualizationControls from "./visualizationControls";
 import Journals from "./journals";
 import { useStore } from "@nanostores/react";
-import { $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
+import { $chartType, $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
 import { fetchData } from "@/api/api";
 import type { ChartData } from "@/api/types";
 
@@ -13,6 +13,7 @@ const SideBar = () => {
 
     const x = useStore($xAxis);
     const y = useStore($yAxis);
+    const chartType = useStore($chartType);
     const groupBy = useStore($groupBy);
 
     const handleSubmit = async () => {
@@ -21,12 +22,14 @@ const SideBar = () => {
         return;
         }
 
+        console.log(chartType)
         const res: ChartData = await fetchData(x, y, groupBy ?? "none");
         setChartData({
             data: res.data,
             xLabel: res.xLabel,
             yLabel: res.yLabel,
-            groupLabel: res.groupLabel
+            groupLabel: res.groupLabel,
+            chartType: chartType
         });
     };
     
@@ -46,7 +49,22 @@ const SideBar = () => {
                 gap={4}
                 overflowY='auto'
             >
+
                 <Text w='full' textAlign='center' fontWeight='bold' fontSize='xl'> 
+                    Visualization 
+                </Text>
+
+                <VisualizationControls />
+
+                {/* Submission */}
+                <Flex w='full' justify='center' mt={'12'} mb={'24'}>
+                    <Button variant='subtle' onClick={handleSubmit}>
+                        Submit
+                    </Button>
+                </Flex>
+                
+
+                {/* <Text w='full' textAlign='center' fontWeight='bold' fontSize='xl'> 
                     Data Filters 
                 </Text>
 
@@ -65,20 +83,7 @@ const SideBar = () => {
                     <TagBox placeholder="Ethnicity" />
                 </Flex>
 
-                <Flex w='full' h='1px' bg='gray.300' my={4} />
-
-                <Text w='full' textAlign='center' fontWeight='bold' fontSize='xl'> 
-                    Visualization 
-                </Text>
-
-                <VisualizationControls />
-
-                {/* Submission */}
-                <Flex w='full' justify='center' mt={'12'} mb={'24'}>
-                    <Button variant='subtle' onClick={handleSubmit}>
-                        Submit
-                    </Button>
-                </Flex>
+                <Flex w='full' h='1px' bg='gray.300' my={4} /> */}
                 
             </Flex>
         </Flex>
