@@ -3,9 +3,27 @@ import YearSlider from "./yearSlider";
 import TagBox from "./tagBox";
 import VisualizationControls from "./visualizationControls";
 import Journals from "./journals";
+import { useStore } from "@nanostores/react";
+import { $chartType, $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
+import { fetchData } from "@/api/api";
 
 
 const SideBar = () => {
+
+    const x = useStore($xAxis);
+    const y = useStore($yAxis);
+    const groupBy = useStore($groupBy);
+
+    const handleSubmit = async () => {
+        if (!x || !y) {
+        alert("Please select X and Y axes.");
+        return;
+        }
+
+        const data = await fetchData(x, y, groupBy ?? "none");
+        setChartData(data);
+    };
+    
     return (
         <Flex
             w='1/3'
@@ -51,7 +69,7 @@ const SideBar = () => {
 
                 {/* Submission */}
                 <Flex w='full' justify='center' mt={'12'} mb={'24'}>
-                    <Button variant='subtle'>
+                    <Button variant='subtle' onClick={handleSubmit}>
                         Submit
                     </Button>
                 </Flex>

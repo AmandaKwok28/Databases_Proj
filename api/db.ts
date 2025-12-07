@@ -1,11 +1,11 @@
-import pg from "pg";
-const { Pool } = pg;
+import { Pool } from "pg";
+import dotenv from "dotenv";
 
-// create a connection pool
+dotenv.config();
+
 export const pool = new Pool({
-  user: "Amanda Kwok",     
-  host: "localhost",     
-  database: "yourdbname",
-  password: "yourpassword",
-  port: 5432,           
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });

@@ -1,8 +1,16 @@
 import express from "express";
 import { pool } from "./db.ts";
+import cors from "cors";
+import { buildVisualizationQuery } from "./scripts/sql-builder.js";
 
 
 const app = express();
+
+app.use(cors({
+  origin: "*", // or "http://localhost:5173" for tighter security
+}));
+
+app.use(express.json());
 const port = 3000;
 
 app.get("/", (req, res) => {
@@ -98,7 +106,7 @@ app.get("/articles", async (req, res) => {
 // countries
 app.get("/country", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM Country")
+    const result = await pool.query("SELECT * FROM Countries")
     res.json({
       data: result.rows,
     })
@@ -108,6 +116,20 @@ app.get("/country", async (req, res) => {
   }
 })
 
+
+// plotting
+app.post("/visualize", async (req, res) => {
+  const { x, y, groupBy } = req.body;
+
+  try {
+    const query = buildVisualizationQuery({ x, y, groupBy });
+    const result = await pool.query(query);
+    res.json({ data: result.rows });
+  } catch (error) {
+    console.error("Visualization error:", error);
+    res.status(500).json({ error: "Invalid visualization request" });
+  }
+});
 
 
 app.listen(port, () => {

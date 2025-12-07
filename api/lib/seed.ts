@@ -15,7 +15,7 @@ async function init() {
   const countrySql = fs.readFileSync("lib/country_tuples.sql", "utf8");
   const orcidSql = fs.readFileSync("lib/orcid_tuples.sql", "utf8");
   const raceSql = fs.readFileSync("lib/race_tuples.sql", "utf8");
-  const genderSql = fs.readFileSync("lib/gender_tuples.sql", "utf8").split(";\n");;
+  const genderSql = fs.readFileSync("lib/gender_tuples.sql", "utf8");
   const articleSql = fs.readFileSync("lib/article_tuples.sql", "utf8");
 
   const client = new Client({
@@ -67,12 +67,7 @@ async function init() {
     // insert rest of the tuples
     await client.query(orcidSql);         // should run once all institutions have the correct affiliations
     await client.query(raceSql);
-    
-    // gender table is way too large
-    for (let i = 0; i < genderSql.length; i += 5000) {
-      const chunk = genderSql.slice(i, i + 500).join(";\n") + ";";
-      await client.query(chunk);
-    }
+    await client.query(genderSql);
 
     // seed the articles
     console.log('seeding articles...')
