@@ -56,6 +56,13 @@ async function init() {
       inserted++;
     }
 
+    // re-enforce the foreign key constraint once you confirmed all affilatiations exist in institutions
+    await client.query(`
+      ALTER TABLE Author
+      ADD CONSTRAINT fk_author_affiliation
+      FOREIGN KEY (Affiliation)
+      REFERENCES Institutions(Name);
+    `);
 
     // insert rest of the tuples
     await client.query(orcidSql);         // should run once all institutions have the correct affiliations

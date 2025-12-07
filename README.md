@@ -35,12 +35,23 @@ cd <project-folder>
 
 ### 2. Install Dependencies
 ```bash
+cd web
+pnpm install
+
+cd api
 pnpm install
 ```
 
-### 3. Run the Website
+### 3. Run the Frontend
 ```bash
+cd web
 pnpm dev
+```
+
+### 4. Run the Backend
+```bash
+cd web
+pnpm start
 ```
 
 The application should now be running. Open your browser and navigate to the URL shown in the terminal (`http://localhost:5173`).

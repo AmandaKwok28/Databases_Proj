@@ -17,17 +17,9 @@ CREATE TABLE IF NOT EXISTS Author (
     FOREIGN KEY (Affiliation) REFERENCES Institutions(Name)
 );
 
--- something I did to seed the database
--- ALTER TABLE Author
--- DROP CONSTRAINT author_affiliation_fkey;
-
--- ALTER TABLE Author
--- ALTER COLUMN Affiliation TYPE VARCHAR(1000);
-
--- ALTER TABLE Author
--- ADD CONSTRAINT fk_author_affiliation
--- FOREIGN KEY (Affiliation)
--- REFERENCES Institutions(Name);
+-- something I did to seed the database (will need this for reproducibility)
+ALTER TABLE Author
+DROP CONSTRAINT author_affiliation_fkey;
 
 
 CREATE TABLE IF NOT EXISTS Race (
