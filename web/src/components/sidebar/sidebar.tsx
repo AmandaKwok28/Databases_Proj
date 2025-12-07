@@ -4,7 +4,7 @@ import TagBox from "./tagBox";
 import VisualizationControls from "./visualizationControls";
 import Journals from "./journals";
 import { useStore } from "@nanostores/react";
-import { $chartType, $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
+import { $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
 import { fetchData } from "@/api/api";
 
 
