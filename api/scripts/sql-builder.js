@@ -26,6 +26,7 @@ const GROUP_FIELDS = {
 };
 
 
+// this builds queries that do analytics on journal articles
 export function buildVisualizationQuery({
   x,
   y,

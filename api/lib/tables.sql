@@ -17,20 +17,10 @@ CREATE TABLE IF NOT EXISTS Author (
     FOREIGN KEY (Affiliation) REFERENCES Institutions(Name)
 );
 
--- something I did to seed the database (will need this for reproducibility)
-ALTER TABLE Author
-DROP CONSTRAINT author_affiliation_fkey;
-
 
 CREATE TABLE IF NOT EXISTS Race (
     Name            VARCHAR(100) PRIMARY KEY,
     RaceLabel       VARCHAR(20),
-    FOREIGN KEY (Name) REFERENCES Author(Name)
-);
-
-CREATE TABLE IF NOT EXISTS Gender (
-    Name            VARCHAR(100) PRIMARY KEY,
-    GenderLabel     VARCHAR(20),
     FOREIGN KEY (Name) REFERENCES Author(Name)
 );
 
@@ -61,7 +51,18 @@ CREATE TABLE IF NOT EXISTS Articles (
     PRIMARY KEY (Title, Author_Number)
 );
 
+
 CREATE TABLE IF NOT EXISTS Countries (
-    Name            VARCHAR(100) PRIMARY KEY,
-    CountryCode     CHAR(2)
+    Name            VARCHAR(100),
+    CountryCode     CHAR(2) PRIMARY KEY
 );
+
+
+CREATE TABLE IF NOT EXISTS Gender (
+    Name            VARCHAR(100) PRIMARY KEY,
+    CountryCode     CHAR(2),
+    GenderLabel     VARCHAR(20),
+    FOREIGN KEY (Name) REFERENCES Author(Name),
+    FOREIGN KEY (CountryCode) REFERENCES Countries(CountryCode)
+);
+

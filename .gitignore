@@ -1,1 +1,3 @@
 node_modules
+api/lib/gender_tuples.sql
+api/lib/gender_tuples.txt

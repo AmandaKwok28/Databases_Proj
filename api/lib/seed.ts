@@ -15,7 +15,7 @@ async function init() {
   const countrySql = fs.readFileSync("lib/country_tuples.sql", "utf8");
   const orcidSql = fs.readFileSync("lib/orcid_tuples.sql", "utf8");
   const raceSql = fs.readFileSync("lib/race_tuples.sql", "utf8");
-  const genderSql = fs.readFileSync("lib/gender_tuples.sql", "utf8");
+  const genderSql = fs.readFileSync("lib/gender_tuples.sql", "utf8").split(";\n");;
   const articleSql = fs.readFileSync("lib/article_tuples.sql", "utf8");
 
   const client = new Client({
@@ -28,11 +28,14 @@ async function init() {
     await client.query("BEGIN;");
     await client.query("SET synchronous_commit TO OFF;");  // saw this might speed seeding up a bit
     await client.query("SET session_replication_role = 'replica';");
+
+    console.log('Creating tables, seeding journals, institutions, and countries...')
     await client.query(tablesSql);
     await client.query(journalSql);
     await client.query(institutionSql);
     await client.query(countrySql);    
 
+    console.log('accounting for missing institutions in affiliations...')
     // authors don't perfectly align with institutions so we can fill in the missing affiliations
     const missing = await client.query(`
       SELECT DISTINCT a.Affiliation
@@ -56,18 +59,17 @@ async function init() {
       inserted++;
     }
 
-    // re-enforce the foreign key constraint once you confirmed all affilatiations exist in institutions
-    await client.query(`
-      ALTER TABLE Author
-      ADD CONSTRAINT fk_author_affiliation
-      FOREIGN KEY (Affiliation)
-      REFERENCES Institutions(Name);
-    `);
-
     // insert rest of the tuples
+    console.log('Seeding orcid and race information...')
     await client.query(orcidSql);         // should run once all institutions have the correct affiliations
     await client.query(raceSql);
-    await client.query(genderSql);
+    
+    // gender table is way too large
+    console.log('Seeding gender information...')
+    for (let i = 0; i < genderSql.length; i += 5000) {
+      const chunk = genderSql.slice(i, i + 500).join(";\n") + ";";
+      await client.query(chunk);
+    }
 
     // seed the articles
     console.log('seeding articles...')
