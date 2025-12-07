@@ -1,8 +1,8 @@
 import { Button, Flex, Text } from "@chakra-ui/react"
-import YearSlider from "./yearSlider";
-import TagBox from "./tagBox";
+// import YearSlider from "./yearSlider";
+// import TagBox from "./tagBox";
 import VisualizationControls from "./visualizationControls";
-import Journals from "./journals";
+//import Journals from "./journals";
 import { useStore } from "@nanostores/react";
 import { $chartType, $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
 import { fetchData } from "@/api/api";
