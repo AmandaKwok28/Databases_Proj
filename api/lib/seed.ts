@@ -65,11 +65,22 @@ async function init() {
     await client.query(raceSql);
     
     // gender table is way too large
-    console.log('Seeding gender information...')
-    for (let i = 0; i < genderSql.length; i += 5000) {
-      const chunk = genderSql.slice(i, i + 500).join(";\n") + ";";
+    console.log("Seeding gender information...");
+    const CHUNK_SIZE = 500;
+    for (let i = 0; i < genderSql.length; i += CHUNK_SIZE) {
+      const chunk = genderSql.slice(i, i + CHUNK_SIZE).join(";\n") + ";";
       await client.query(chunk);
     }
+
+    // further check if there's author names not in the gender table -> add those to the table under the label '?'
+    console.log("Adding missing authors to gender table...");
+
+    await client.query(`
+      INSERT INTO Gender (Name, CountryCode, GenderLabel)
+      SELECT DISTINCT split_part(Name, ' ', 1) AS firstname, NULL, '?'
+      FROM Author
+      WHERE split_part(Name, ' ', 1) NOT IN (SELECT Name FROM Gender);
+    `);
 
     // seed the articles
     console.log('seeding articles...')

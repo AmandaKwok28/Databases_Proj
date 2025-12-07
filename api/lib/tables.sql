@@ -58,11 +58,13 @@ CREATE TABLE IF NOT EXISTS Countries (
 );
 
 
+DROP TABLE Gender;
 CREATE TABLE IF NOT EXISTS Gender (
     Name            VARCHAR(100) PRIMARY KEY,
     CountryCode     CHAR(2),
     GenderLabel     VARCHAR(20),
-    FOREIGN KEY (Name) REFERENCES Author(Name),
+-- got rid of this foreign key because gender is based on the first name and author name is a full name
+--     FOREIGN KEY (Name) REFERENCES Author(Name),                 
     FOREIGN KEY (CountryCode) REFERENCES Countries(CountryCode)
 );
 
