@@ -3,11 +3,11 @@ import { createListCollection, Select } from "@chakra-ui/react";
 import type { 
     ChartType, 
     XField,
-    YField,
     GroupField
 } from "@/api/types";
-import { setChartType, setGroupBy, setXAxis, setYAxis } from "@/lib/store";
+import { setChartType, setGroupBy, setXAxis } from "@/lib/store";
 import { toaster } from "../ui/toaster";
+import { YAxisSelector } from "./yAxisOptions";
 
 
 
@@ -32,13 +32,13 @@ const VisualizationControls = () => {
     ] as { label: string; value: XField }[],
   });
 
-  const yAxisOptions = createListCollection({
-    items: [
-      { label: "Publication Count", value: "publication_count" },
-      { label: "Citation Count", value: "citation_count" },
-      { label: "Author Count", value: "author_count" }
-    ] as { label: string; value: YField }[],
-  });
+  // const yAxisOptions = createListCollection({
+  //   items: [
+  //     { label: "Publication Count", value: "publication_count" },
+  //     { label: "Citation Count", value: "citation_count" },
+  //     { label: "Author Count", value: "author_count" }
+  //   ] as { label: string; value: YField }[],
+  // });
 
   const groupByOptions = createListCollection({
     items: [
@@ -117,7 +117,7 @@ const VisualizationControls = () => {
       </Flex>
 
       {/* Y Axis */}
-      <Flex direction="column">
+      {/* <Flex direction="column">
         <Text mb={2} fontWeight="semibold">
           Y-Axis <Text as="span" color="red.500">*</Text>
         </Text>
@@ -136,7 +136,8 @@ const VisualizationControls = () => {
             ))}
           </Select.Content>
         </Select.Root>
-      </Flex>
+      </Flex> */}
+      <YAxisSelector />
 
       {/* Group By */}
       <Flex direction="column">
@@ -145,7 +146,9 @@ const VisualizationControls = () => {
         </Text>
         <Select.Root
           collection={groupByOptions}
-          onValueChange={(val) => setGroupBy(val.value as unknown as GroupField)}
+          onValueChange={(val) => {
+            setGroupBy(val.value[0] as unknown as  GroupField)
+          }}
         >
           <Select.Trigger>
             <Select.ValueText placeholder="None" />

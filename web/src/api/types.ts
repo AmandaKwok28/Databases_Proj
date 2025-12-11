@@ -25,7 +25,7 @@ export type GroupField =
 export type ChartData = {
   data: dataObj[];
   xLabel: string;
-  yLabel: string;
+  yLabel: YField[];
   groupLabel: string | null;
 }
 
@@ -33,6 +33,7 @@ export type ChartPlot = ChartData & {
   chartType: ChartType;
 };
 
+export type YFieldArray = YField[];
 
 
 export type dataObj = {

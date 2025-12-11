@@ -2,7 +2,7 @@
 
 const X_FIELDS = {
   year: `EXTRACT(YEAR FROM TO_DATE(A.Published, 'YYYY-MM-DD'))`,
-  journal: `COALESCE(J.LongName, A.ISSN)`,
+  journal: `COALESCE(J.LongName, A.Publisher)`,
   country: `COALESCE(C.Name, '?')`,
   institution: `I.Name`,
   gender: `COALESCE(G.GenderLabel, '?')`,

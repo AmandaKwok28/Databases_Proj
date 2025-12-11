@@ -9,7 +9,7 @@ export function setChartType (type: ChartType) {
 export const $chartData = atom<ChartPlot>({
     data: [],
     xLabel: "",
-    yLabel: "",
+    yLabel: [],
     groupLabel: "",
     chartType: "bar",
 });
@@ -23,8 +23,8 @@ export function setXAxis (type: XField) {
     $xAxis.set(type);
 }
 
-export const $yAxis = atom<YField | null>(null);
-export function setYAxis (type: YField) {
+export const $yAxis = atom<YField[]>([]);
+export function setYAxis (type: YField[]) {
     $yAxis.set(type);
 }
 

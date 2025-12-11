@@ -35,8 +35,10 @@ CREATE TABLE IF NOT EXISTS Journals (
     ImpactFactor    DECIMAL(5,1)
 );
 
+
+DROP TABLE Articles;
 CREATE TABLE IF NOT EXISTS Articles (
-    Title                   VARCHAR(1000),
+    Title                   VARCHAR(300),
     Author                  VARCHAR(100),
     Author_Number           INTEGER,
     DOI                     VARCHAR(200),
@@ -45,12 +47,12 @@ CREATE TABLE IF NOT EXISTS Articles (
     URL                     VARCHAR(500),
     Published               VARCHAR(100),
     ISSN                    VARCHAR(20),
+    Journal                 VARCHAR(1000),  -- jounral name
     References_Count        INTEGER,
     Is_Referenced_By_Count  INTEGER,
     FOREIGN KEY (Author) REFERENCES Author(Name),
     PRIMARY KEY (Title, Author_Number)
 );
-
 
 CREATE TABLE IF NOT EXISTS Countries (
     Name            VARCHAR(100),
