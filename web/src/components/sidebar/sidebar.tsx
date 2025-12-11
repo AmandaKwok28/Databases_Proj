@@ -40,7 +40,7 @@ function filterNulls(data: any[], includeNulls: boolean) {
 
   return data.filter(row => {
     // Always remove x = "?"
-    if (row.x === "?") return false;
+    if (row.x === "?" || row.x === "No Affiliation Provided") return false;
 
     // If grouped, remove rows where group_value = "?"
     if (row.group_value === "?") return false;
