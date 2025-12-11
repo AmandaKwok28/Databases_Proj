@@ -1,10 +1,7 @@
 import { Button, Flex, Text } from "@chakra-ui/react"
-// import YearSlider from "./yearSlider";
-// import TagBox from "./tagBox";
 import VisualizationControls from "./visualizationControls";
-//import Journals from "./journals";
 import { useStore } from "@nanostores/react";
-import { $chartType, $groupBy, $xAxis, $yAxis, setChartData } from "@/lib/store";
+import { $chartType, $groupBy, $includeNulls, $topN, $xAxis, $yAxis, setChartData } from "@/lib/store";
 import { fetchData } from "@/api/api";
 import type { ChartData } from "@/api/types";
 import { toaster } from "../ui/toaster";
@@ -38,6 +35,19 @@ function mergeChartResults(results: ChartData[]) {
 }
 
 
+function filterNulls(data: any[], includeNulls: boolean) {
+  if (includeNulls) return data;
+
+  return data.filter(row => {
+    // Always remove x = "?"
+    if (row.x === "?") return false;
+
+    // If grouped, remove rows where group_value = "?"
+    if (row.group_value === "?") return false;
+
+    return true;
+  });
+}
 
 
 
@@ -47,6 +57,8 @@ const SideBar = () => {
     const y = useStore($yAxis);
     const chartType = useStore($chartType);
     const groupBy = useStore($groupBy);
+    const topN = useStore($topN);
+    const includeNulls = useStore($includeNulls);
 
     const handleSubmit = async () => {
         if (!x || !y || y.length === 0) {
@@ -74,30 +86,30 @@ const SideBar = () => {
         // ----- MULTI-METRIC (ONLY allowed when NOT grouped) -----
         if (isMultiMetric) {
             const results: ChartData[] = await Promise.all(
-            y.map((metric) => fetchData(x, metric, groupBy ?? "none"))
+                y.map((metric) => fetchData(x, metric, groupBy ?? "none", topN))
             );
 
             const merged = mergeChartResults(results);
 
             setChartData({
-            data: merged.data,
-            xLabel: merged.xLabel,
-            yLabel: merged.yLabel,
-            groupLabel: merged.groupLabel,
-            chartType,
+                data: filterNulls(merged.data, includeNulls),
+                xLabel: merged.xLabel,
+                yLabel: merged.yLabel,
+                groupLabel: merged.groupLabel,
+                chartType
             });
             return;
         }
 
         // ----- SINGLE METRIC (works grouped or not) -----
-        const res: ChartData = await fetchData(x, y[0], groupBy ?? "none");
+        const res: ChartData = await fetchData(x, y[0], groupBy ?? "none", topN);
 
         setChartData({
-            data: res.data,
+            data: filterNulls(res.data, includeNulls),
             xLabel: res.xLabel,
             yLabel: [y[0]],
             groupLabel: res.groupLabel,
-            chartType,
+            chartType
         });
     };
 
@@ -105,7 +117,7 @@ const SideBar = () => {
     
     return (
         <Flex
-            w='1/3'
+            w='1/4'
             h='full'
             p='10'
         >
@@ -132,28 +144,6 @@ const SideBar = () => {
                         Submit
                     </Button>
                 </Flex>
-                
-
-                {/* <Text w='full' textAlign='center' fontWeight='bold' fontSize='xl'> 
-                    Data Filters 
-                </Text>
-
-                <Journals />
-
-                <Flex w='full' direction='column'>
-                    <Text mb={4} fontWeight='semibold'> Year Range </Text>
-                    <YearSlider />
-                </Flex>
-
-                <Flex w='full' direction='column' gap={4}>
-                    <TagBox placeholder="Countries (e.g., USA, China)" />
-                    <TagBox placeholder="Keywords/Categories" />
-                    <TagBox placeholder="Institutions" />
-                    <TagBox placeholder="Gender (M, F, Unknown)" />
-                    <TagBox placeholder="Ethnicity" />
-                </Flex>
-
-                <Flex w='full' h='1px' bg='gray.300' my={4} /> */}
                 
             </Flex>
         </Flex>

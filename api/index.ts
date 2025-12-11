@@ -119,10 +119,10 @@ app.get("/country", async (req, res) => {
 
 // plotting
 app.post("/visualize", async (req, res) => {
-  const { x, y, groupBy } = req.body;
+  const { x, y, groupBy, N } = req.body;
 
   try {
-    const { query, xLabel, yLabel, groupLabel } = buildVisualizationQuery({ x, y, groupBy });
+    const { query, xLabel, yLabel, groupLabel } = buildVisualizationQuery({ x, y, groupBy, N });
     const result = await pool.query(query);
     res.json({ 
       data: result.rows, 

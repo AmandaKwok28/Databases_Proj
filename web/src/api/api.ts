@@ -5,7 +5,8 @@ import type { GroupField, XField, YField } from "./types";
 export const fetchData = async (
     x: XField,
     y: YField,
-    groupBy: GroupField
+    groupBy: GroupField,
+    topN: number
 ) => {
   const response = await fetch(`${API_URL}/visualize`, {
     method: "POST",
@@ -14,6 +15,7 @@ export const fetchData = async (
       x,
       y,
       groupBy,
+      N: topN,
     }),
   });
   if (!response.ok) {

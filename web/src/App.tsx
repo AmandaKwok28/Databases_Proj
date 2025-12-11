@@ -1,10 +1,16 @@
-import { Flex, Text } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import SideBar from "./components/sidebar/sidebar";
 import LineGraph from "./components/charts/lineChart";
 import { Toaster } from "@/components/ui/toaster";
+import Filter from "./components/sidebar/filter";
+import { useStore } from "@nanostores/react";
+import { $chartData } from "./lib/store";
 
 
 function App() {
+
+  const chartData = useStore($chartData);
+
   return (
     <Flex 
       bg='white'
@@ -15,9 +21,13 @@ function App() {
     >
       <Toaster />
       <SideBar />
-      <Flex w='2/3' justify='center' align='center' direction='column'>
-        <Text color='black' fontWeight='bold' fontSize='xl'> Example Graph </Text>
-        <LineGraph />
+      <Flex w='3/4' justify='center' align='center' direction='column'>
+        <Flex w='full' direction='row'>
+          <LineGraph />
+          {chartData.data.length !== 0 && (
+            <Filter />
+          )}
+        </Flex>
       </Flex>
     </Flex>
   );

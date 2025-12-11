@@ -11,7 +11,7 @@ export const $chartData = atom<ChartPlot>({
     xLabel: "",
     yLabel: [],
     groupLabel: "",
-    chartType: "bar",
+    chartType: "bar"
 });
 export function setChartData (data: any) {
     $chartData.set(data);
@@ -31,4 +31,14 @@ export function setYAxis (type: YField[]) {
 export const $groupBy = atom<GroupField>("none");
 export function setGroupBy (type: GroupField) {
     $groupBy.set(type);
+}
+
+export const $topN = atom<number>(5);
+export function setTopN (val: number) {
+    $topN.set(val);
+}
+
+export const $includeNulls = atom<boolean>(true);
+export function setIncludeNulls (toggle: boolean) {
+    $includeNulls.set(toggle);
 }

@@ -11,7 +11,7 @@ const yAxisOptions = [
 
 export function YAxisSelector() {
 
-    const yAxis = useStore($yAxis);
+  const yAxis = useStore($yAxis);
 
   const toggleMetric = (metric: YField) => {
     const currentLabels = yAxis;
@@ -22,7 +22,6 @@ export function YAxisSelector() {
     } else {
       updated = [...currentLabels, metric];
     }
-    console.log(updated)
     setYAxis(updated);
   };
 

@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react';
-import { Flex } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import {
   BarChart,
   Bar,
@@ -19,7 +19,7 @@ const BarGraph = () => {
     const chartType = useStore($chartType);
 
     if (!data || data.length === 0) {
-      return <Flex p={10}>No data available</Flex>;
+      return <Flex p={10} w='full' justify={'center'}>No data available</Flex>;
     }
 
     // Check if backend returned grouped values
@@ -73,7 +73,8 @@ const BarGraph = () => {
     const axisLabel = yLabel.length === 1 ? yLabel[0] : yLabel.join(" + ");
 
   return (
-    <Flex w="full" pr={10}>
+    <Flex w="full" pr={10} direction={'column'} justify='center' align={'center'}>
+      <Text color='black' fontWeight='bold' fontSize='xl'> Example Graph </Text>
       <ResponsiveContainer width="100%" height={600}>
         <ChartComponent
           data={chartData}

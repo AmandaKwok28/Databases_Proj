@@ -2,7 +2,7 @@
 
 const X_FIELDS = {
   year: `EXTRACT(YEAR FROM TO_DATE(A.Published, 'YYYY-MM-DD'))`,
-  journal: `COALESCE(J.LongName, A.Publisher)`,
+  journal: `COALESCE(J.LongName, A.Journal)`,
   country: `COALESCE(C.Name, '?')`,
   institution: `I.Name`,
   gender: `COALESCE(G.GenderLabel, '?')`,
@@ -47,7 +47,7 @@ export const LABELS = {
   }
 };
 
-function getTopKFilter(xField) {
+function getTopKFilter(xField, N = 5) {
   // map of which X fields should use top-5 filtering
   const denseFields = {
     country: "C.Name",
@@ -72,7 +72,7 @@ function getTopKFilter(xField) {
           WHERE ${rawField} IS NOT NULL   
           GROUP BY ${rawField}
           ORDER BY COUNT(*) DESC
-          LIMIT 5
+          LIMIT ${N}
       )
     `,
     where: `AND ${rawField} IN (SELECT val FROM top_x)`
@@ -102,7 +102,7 @@ function getTopXWhereClause(xField) {
 
 
 // function to visualize statistics on articles in the database
-export function buildVisualizationQuery({ x, y, groupBy = "none" }) {
+export function buildVisualizationQuery({ x, y, groupBy = "none", N = 5 }) {
   const xField = X_FIELDS[x];
   const yField = Y_FIELDS[y];
   const groupField = GROUP_FIELDS[groupBy];
@@ -116,7 +116,7 @@ export function buildVisualizationQuery({ x, y, groupBy = "none" }) {
 
   // some of the fields are way too dense to plot: if selected edit the query to filter by the most prevalent top 5 categories
   // journals, countries, institution
-  const topXCTE = getTopKFilter(x);
+  const topXCTE = getTopKFilter(x, N);
   const topXWhere = getTopXWhereClause(x);
 
   const query = `
