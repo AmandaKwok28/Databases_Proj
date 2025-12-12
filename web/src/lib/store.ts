@@ -42,3 +42,9 @@ export const $includeNulls = atom<boolean>(true);
 export function setIncludeNulls (toggle: boolean) {
     $includeNulls.set(toggle);
 }
+
+
+export const $applyFilter = atom<boolean>(true);
+export function setFilters() {
+    $applyFilter.set(!$applyFilter.get())
+}

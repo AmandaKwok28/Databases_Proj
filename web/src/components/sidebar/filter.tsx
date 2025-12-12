@@ -1,7 +1,7 @@
-import { Checkbox, Flex, Input, Text } from "@chakra-ui/react"
+import { Button, Checkbox, Flex, Input, Text } from "@chakra-ui/react"
 import { useState } from "react";
 import { toaster } from "../ui/toaster";
-import { $includeNulls, setIncludeNulls, setTopN } from "@/lib/store";
+import { $includeNulls, setFilters, setIncludeNulls, setTopN } from "@/lib/store";
 import { useStore } from "@nanostores/react";
 
 const Filter = () => {
@@ -64,6 +64,10 @@ const Filter = () => {
                         <Checkbox.Label> Include nulls (?) </Checkbox.Label>
                     </Checkbox.Root>
                 </Flex>
+
+                <Button mt={10} variant={'subtle'} onClick={setFilters}>
+                    Apply Filters
+                </Button>
             </Flex>
         </Flex>
     )

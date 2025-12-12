@@ -1,10 +1,11 @@
 import { Button, Flex, Text } from "@chakra-ui/react"
 import VisualizationControls from "./visualizationControls";
 import { useStore } from "@nanostores/react";
-import { $chartType, $groupBy, $includeNulls, $topN, $xAxis, $yAxis, setChartData } from "@/lib/store";
+import { $applyFilter, $chartType, $groupBy, $includeNulls, $topN, $xAxis, $yAxis, setChartData } from "@/lib/store";
 import { fetchData } from "@/api/api";
 import type { ChartData } from "@/api/types";
 import { toaster } from "../ui/toaster";
+import { useEffect } from "react";
 
 function mergeChartResults(results: ChartData[]) {
   const merged = new Map<string, any>();
@@ -59,6 +60,7 @@ const SideBar = () => {
     const groupBy = useStore($groupBy);
     const topN = useStore($topN);
     const includeNulls = useStore($includeNulls);
+    const applyFilters = useStore($applyFilter);
 
     const handleSubmit = async () => {
         if (!x || !y || y.length === 0) {
@@ -112,6 +114,14 @@ const SideBar = () => {
             chartType
         });
     };
+
+
+    useEffect(() => {
+
+        if (!x || y.length === 0) return;
+        handleSubmit();
+
+    }, [applyFilters]);
 
 
     

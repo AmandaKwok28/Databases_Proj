@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Author (
     FOREIGN KEY (Affiliation) REFERENCES Institutions(Name)
 );
 
-
+DROP TABLE Race;
 CREATE TABLE IF NOT EXISTS Race (
     Name            VARCHAR(100) PRIMARY KEY,
     RaceLabel       VARCHAR(20),
