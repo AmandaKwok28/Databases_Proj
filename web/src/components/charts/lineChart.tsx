@@ -74,7 +74,7 @@ const BarGraph = () => {
 
   return (
     <Flex w="full" pr={10} direction={'column'} justify='center' align={'center'}>
-      <Text color='black' fontWeight='bold' fontSize='xl'> Example Graph </Text>
+      <Text color='black' fontWeight='bold' fontSize='xl'> Publication Information </Text>
       <ResponsiveContainer width="100%" height={600}>
         <ChartComponent
           data={chartData}
