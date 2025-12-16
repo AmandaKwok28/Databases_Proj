@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Author (
     FOREIGN KEY (Affiliation) REFERENCES Institutions(Name)
 );
 
-DROP TABLE Race;
+
 CREATE TABLE IF NOT EXISTS Race (
     Name            VARCHAR(100) PRIMARY KEY,
     RaceLabel       VARCHAR(20),
@@ -35,8 +35,6 @@ CREATE TABLE IF NOT EXISTS Journals (
     ImpactFactor    DECIMAL(5,1)
 );
 
-
-DROP TABLE Articles;
 CREATE TABLE IF NOT EXISTS Articles (
     Title                   VARCHAR(300),
     Author                  VARCHAR(100),
