@@ -135,8 +135,10 @@ export function buildVisualizationQuery({ x, y, groupBy = "none", N = 5 }) {
         ${yField} AS y
     FROM Articles A
     LEFT JOIN Author Au ON Au.Name = A.Author
-    LEFT JOIN Gender G ON G.Name = split_part(A.Author, ' ', 1)
-    LEFT JOIN Race R ON R.Name = split_part(A.Author, ' ', 1)
+    LEFT JOIN Gender G
+      ON LOWER(G.Name) = LOWER(split_part(A.Author, ' ', 1))
+    LEFT JOIN Race R
+      ON LOWER(R.Name) = LOWER(split_part(A.Author, ' ', 1))
     LEFT JOIN Institutions I ON I.Name = Au.Affiliation
     LEFT JOIN Countries C ON C.CountryCode = I.CountryCode
     LEFT JOIN Journals J ON J.ISSN = A.ISSN
