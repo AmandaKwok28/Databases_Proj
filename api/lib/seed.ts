@@ -1,13 +1,18 @@
 import fs from "fs";
-import pg from "pg";
 import dotenv from "dotenv";
+import { pool } from "../db";
+import { PoolClient } from "pg";
 
 dotenv.config();
 
-const { Client } = pg;
+function attachClientErrorHandler(client: PoolClient): void {
+  client.on("error", (err: Error) => {
+    console.error("Postgres client error:", err);
+  });
+}
+
 
 async function init() {
-
   // load relevant sql files
   const journalSql = fs.readFileSync("lib/journals.sql", "utf8");
   const tablesSql = fs.readFileSync("lib/tables.sql", "utf8");
@@ -15,28 +20,26 @@ async function init() {
   const countrySql = fs.readFileSync("lib/country_tuples.sql", "utf8");
   const orcidSql = fs.readFileSync("lib/orcid_tuples.sql", "utf8");
   const raceSql = fs.readFileSync("lib/race_tuples.sql", "utf8");
-  const genderSql = fs.readFileSync("lib/gender_tuples.sql", "utf8").split(";\n");;
+  const genderSql = fs
+    .readFileSync("lib/gender_tuples.sql", "utf8")
+    .split(";\n");
   const articleSql = fs.readFileSync("lib/article_tuples.sql", "utf8");
 
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL
-  });
-
-  await client.connect();
+  /* ───────────── Phase 1 client ───────────── */
+  const client = await pool.connect();
+  attachClientErrorHandler(client);
 
   try {
-    await client.query("BEGIN;");
-    await client.query("SET synchronous_commit TO OFF;");  // saw this might speed seeding up a bit
-    await client.query("SET session_replication_role = 'replica';");
+    await client.query("BEGIN");
+    await client.query("SET synchronous_commit TO OFF");
 
-    console.log('Creating tables, seeding journals, institutions, and countries...')
+    console.log("Creating tables, seeding journals, institutions, and countries...");
     await client.query(tablesSql);
     await client.query(journalSql);
     await client.query(institutionSql);
-    await client.query(countrySql);    
+    await client.query(countrySql);
 
-    console.log('accounting for missing institutions in affiliations...')
-    // authors don't perfectly align with institutions so we can fill in the missing affiliations
+    console.log("Accounting for missing institutions in affiliations...");
     const missing = await client.query(`
       SELECT DISTINCT a.Affiliation
       FROM Author a
@@ -46,53 +49,128 @@ async function init() {
         AND a.Affiliation <> 'No Affiliation Provided';
     `);
 
-    let inserted = 0;
-
     for (const row of missing.rows) {
-      const aff = row.affiliation;
       await client.query(
         `INSERT INTO Institutions (Name)
          VALUES ($1)
          ON CONFLICT (Name) DO NOTHING`,
-        [aff]
+        [row.affiliation]
       );
-      inserted++;
     }
 
-    // insert rest of the tuples
-    console.log('Seeding orcid and race information...')
-    await client.query(orcidSql);         // should run once all institutions have the correct affiliations
+    console.log("Seeding ORCID and race information...");
+    await client.query(orcidSql);
     await client.query(raceSql);
-    
-    // gender table is way too large
+
+    await client.query("COMMIT"); // phase 1 complete
+
+    /* ───────────── Phase 2: gender (chunked, new client each time) ───────────── */
+    const countryRes = await client.query(
+      `SELECT countrycode FROM Countries`
+    );
+    const validCountryCodes = new Set(
+      countryRes.rows.map(r => r.countrycode)
+    );
+
     console.log("Seeding gender information...");
-    const CHUNK_SIZE = 500;
-    for (let i = 0; i < genderSql.length; i += CHUNK_SIZE) {
-      const chunk = genderSql.slice(i, i + CHUNK_SIZE).join(";\n") + ";";
-      await client.query(chunk);
+    const CHUNK_SIZE = 100;
+    const genderStmts = genderSql
+      .map(stmt => {
+        // match VALUES ('Name', 'CC', 'Label')
+        const match = stmt.match(
+          /VALUES\s*\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/i
+        );
+
+        if (!match) return stmt; // leave untouched if unexpected format
+
+        const [, name, countryCode, label] = match;
+
+        if (!validCountryCodes.has(countryCode)) {
+          return null; // DROP the row entirely
+        }
+
+
+        return stmt;
+      })
+      .filter((s): s is string => Boolean(s && s.trim()));
+
+
+    for (let i = 0; i < genderStmts.length; i += CHUNK_SIZE) {
+      const chunk =
+        genderStmts.slice(i, i + CHUNK_SIZE).join(";\n") + ";";
+
+      const chunkClient = await pool.connect();
+
+      try {
+        await chunkClient.query("BEGIN");
+        await chunkClient.query(chunk);
+        await chunkClient.query("COMMIT");
+      } catch (err) {
+        try {
+          await chunkClient.query("ROLLBACK");
+        } catch {}
+        throw err;
+      } finally {
+        chunkClient.release();
+      }
     }
 
-    // further check if there's author names not in the gender table -> add those to the table under the label '?'
-    console.log("Adding missing authors to gender table...");
+    /* ───────────── Phase 3: articles (exact-match filtering) ───────────── */
+console.log("Seeding articles...");
 
-    await client.query(`
-      INSERT INTO Gender (Name, CountryCode, GenderLabel)
-      SELECT DISTINCT split_part(Name, ' ', 1) AS firstname, NULL, '?'
-      FROM Author
-      WHERE split_part(Name, ' ', 1) NOT IN (SELECT Name FROM Gender);
-    `);
+// Load exact author names
+const authorRes = await client.query(`SELECT Name FROM Author`);
+const validAuthors = new Set(authorRes.rows.map(r => r.name));
 
-    // seed the articles
-    console.log('seeding articles...')
-    await client.query(articleSql);
-    await client.query("SET session_replication_role = 'origin';");
-    await client.query("COMMIT;");
+// Filter article inserts by exact Author match
+const articleStmts = articleSql
+  .split(";\n")
+  .map(stmt => {
+    // Match: VALUES ('Title', 'Author', <author_number>, ...)
+    const match = stmt.match(
+      /VALUES\s*\(\s*'([^']*)'\s*,\s*'([^']*)'\s*,\s*\d+/i
+    );
+
+    if (!match) return null;
+
+    const rawAuthor = match[2];
+
+    // EXACT match only — guarantees FK validity
+    if (!validAuthors.has(rawAuthor)) {
+      return null; // DROP article
+    }
+
+    return stmt;
+  })
+  .filter((s): s is string => Boolean(s && s.trim()));
+
+console.log(`Inserting ${articleStmts.length} articles after exact-match filtering`);
+
+const articleClient = await pool.connect();
+attachClientErrorHandler(articleClient);
+
+try {
+  await articleClient.query("BEGIN");
+  await articleClient.query(articleStmts.join(";\n") + ";");
+  await articleClient.query("COMMIT");
+} catch (err) {
+  try {
+    await articleClient.query("ROLLBACK");
+  } catch {}
+  throw err;
+} finally {
+  articleClient.release();
+}
+
+
     console.log("DB seeded successfully");
   } catch (err) {
-    await client.query("ROLLBACK;");
+    try {
+      await client.query("ROLLBACK");
+    } catch {}
     console.error("Error running seed.sql:", err);
   } finally {
-    await client.end();
+    client.release();
   }
 }
 

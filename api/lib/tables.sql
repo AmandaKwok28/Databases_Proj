@@ -52,18 +52,21 @@ CREATE TABLE IF NOT EXISTS Articles (
     PRIMARY KEY (Title, Author_Number)
 );
 
+CREATE INDEX IF NOT EXISTS idx_articles_author
+ON Articles(Author);
+
+
 CREATE TABLE IF NOT EXISTS Countries (
     Name            VARCHAR(100),
     CountryCode     CHAR(2) PRIMARY KEY
 );
 
 
+DROP TABLE Gender;
 CREATE TABLE IF NOT EXISTS Gender (
-    Name            VARCHAR(100) PRIMARY KEY,
+    Name            VARCHAR(100),
     CountryCode     CHAR(2),
     GenderLabel     VARCHAR(20),
--- got rid of this foreign key because gender is based on the first name and author name is a full name
---     FOREIGN KEY (Name) REFERENCES Author(Name),                 
-    FOREIGN KEY (CountryCode) REFERENCES Countries(CountryCode)
+    FOREIGN KEY (CountryCode) REFERENCES Countries(CountryCode),
+    PRIMARY KEY (Name, CountryCode)
 );
-
