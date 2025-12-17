@@ -50,7 +50,7 @@ pnpm dev
 
 ### 4. Run the Backend
 ```bash
-cd web
+cd api
 pnpm start
 ```
 
