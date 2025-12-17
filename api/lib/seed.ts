@@ -39,28 +39,58 @@ async function init() {
     await client.query(institutionSql);
     await client.query(countrySql);
 
-    console.log("Accounting for missing institutions in affiliations...");
-    const missing = await client.query(`
-      SELECT DISTINCT a.Affiliation
-      FROM Author a
-      LEFT JOIN Institutions i ON a.Affiliation = i.Name
-      WHERE i.Name IS NULL
-        AND a.Affiliation IS NOT NULL
-        AND a.Affiliation <> 'No Affiliation Provided';
-    `);
+    // console.log("Accounting for missing institutions in affiliations...");
+    // const missing = await client.query(`
+    //   SELECT DISTINCT a.Affiliation
+    //   FROM Author a
+    //   LEFT JOIN Institutions i ON a.Affiliation = i.Name
+    //   WHERE i.Name IS NULL
+    //     AND a.Affiliation IS NOT NULL
+    //     AND a.Affiliation <> 'No Affiliation Provided';
+    // `);
 
-    for (const row of missing.rows) {
-      await client.query(
-        `INSERT INTO Institutions (Name)
-         VALUES ($1)
-         ON CONFLICT (Name) DO NOTHING`,
-        [row.affiliation]
-      );
-    }
+    // for (const row of missing.rows) {
+    //   await client.query(
+    //     `INSERT INTO Institutions (Name)
+    //      VALUES ($1)
+    //      ON CONFLICT (Name) DO NOTHING`,
+    //     [row.affiliation]
+    //   );
+    // }
 
-    console.log("Seeding ORCID and race information...");
-    await client.query(orcidSql);
-    await client.query(raceSql);
+    console.log("Seeding ORCID information (temporarily disabling FKs)...");
+
+  // Disable FK checks for this session
+  await client.query(`SET session_replication_role = 'replica'`);
+
+  await client.query(orcidSql);
+
+  // Re-enable FK checks
+  await client.query(`SET session_replication_role = 'origin'`);
+
+  console.log("Accounting for missing institutions in affiliations (post-ORCID)...");
+
+  const missing = await client.query(`
+    SELECT DISTINCT a.Affiliation
+    FROM Author a
+    LEFT JOIN Institutions i ON a.Affiliation = i.Name
+    WHERE i.Name IS NULL
+      AND a.Affiliation IS NOT NULL
+      AND a.Affiliation <> 'No Affiliation Provided';
+  `);
+
+  for (const row of missing.rows) {
+    await client.query(
+      `INSERT INTO Institutions (Name)
+      VALUES ($1)
+      ON CONFLICT (Name) DO NOTHING`,
+      [row.affiliation]
+    );
+  }
+
+  console.log("Seeding race information...");
+  await client.query(raceSql);
+
 
     await client.query("COMMIT"); // phase 1 complete
 

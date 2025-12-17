@@ -17,11 +17,10 @@ CREATE TABLE IF NOT EXISTS Author (
     FOREIGN KEY (Affiliation) REFERENCES Institutions(Name)
 );
 
-
+DROP TABLE IF EXISTS Race;
 CREATE TABLE IF NOT EXISTS Race (
     Name            VARCHAR(100) PRIMARY KEY,
-    RaceLabel       VARCHAR(20),
-    FOREIGN KEY (Name) REFERENCES Author(Name)
+    RaceLabel       VARCHAR(20)
 );
 
 CREATE TABLE IF NOT EXISTS Journals (
